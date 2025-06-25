@@ -54,7 +54,7 @@ def webhook_clickbank():
     else:
         print(f"❌ Erro {resp.status_code}: {resp.text}")
 
-    return "OK", 200
+    return "VERIFICADO", 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
