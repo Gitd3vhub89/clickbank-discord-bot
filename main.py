@@ -9,7 +9,8 @@ DISCORD_WEBHOOK_URL = (
     "w5YxLn2_0pvjluhaiATLlkWGHemjKLjQCo96B6-gxIaHzISdx-xp7qyNLeQANjAHvhEJ"
 )
 
-SECRET_KEY = "7F2A9K3L5Q8X1Z0M"  # Substitua pela sua secret key de 16 chars
+# Comentado temporariamente pra teste
+# SECRET_KEY = "7F2A9K3L5Q8X1Z0M"
 
 MESSAGES = {
     "SALE":   "💸 **VENDA CONFIRMADA!**",
@@ -26,16 +27,18 @@ def home():
 
 @app.route("/webhook_clickbank", methods=["POST"])
 def webhook_clickbank():
-    # DEBUG: log completo do form
-    print("🔍 Payload recebido:", dict(request.form))
+    # Logs de debug completo
+    print("🔍 HEADERS:", dict(request.headers))
+    print("🔍 FORM DATA:", dict(request.form))
+    print("🔍 JSON (se vier):", request.get_json(silent=True))
 
-    # Validação da secret key
-    secret = request.form.get("secretKey", "")
-    if secret != SECRET_KEY:
-        print("❌ SecretKey inválida:", secret)
-        return "", 403
+    # Temporariamente sem validação de chave secreta
+    # secret = request.form.get("secretKey", "")
+    # if secret != SECRET_KEY:
+    #     print("❌ SecretKey inválida:", secret)
+    #     return "", 403
 
-    # Mapeamento de campos
+    # Dados principais
     item     = request.form.get("item", "— Produto desconhecido —")
     amount   = request.form.get("amount", "0.00")
     tx_type  = request.form.get("transactionType", "UNKNOWN").upper()
@@ -48,13 +51,14 @@ def webhook_clickbank():
         f"🔄 Tipo: `{tx_type}`"
     )
 
+    # Envia para o Discord
     resp = requests.post(DISCORD_WEBHOOK_URL, json={"content": mensagem})
     if resp.status_code == 204:
         print(f"✅ {tx_type} notificado com sucesso.")
     else:
         print(f"❌ Erro {resp.status_code}: {resp.text}")
 
-    return "VERIFICADO", 200
+    return "OK", 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
